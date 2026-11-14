@@ -1,5 +1,3 @@
-// TP2 - Assignment #2 : Dice Screens (Jetpack Compose + Navigation)
-// !!! Change the package line below so it matches YOUR project's package name !!!
 package com.example.diceroller
 
 import android.os.Bundle
@@ -31,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,10 +46,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlin.random.Random
-
-// ---------------------------------------------------------------------------
-// Activity
-// ---------------------------------------------------------------------------
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,19 +56,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Navigation
-// ---------------------------------------------------------------------------
 object Routes {
     const val MAIN = "main"
     const val RESULT = "result"
     const val ARG_VALUE = "value"
 
-    // pattern registered in the NavGraph:  result/{value}
     const val RESULT_PATTERN = "$RESULT/{$ARG_VALUE}"
 
-    // concrete route used to navigate:  result/4
     fun result(value: Int) = "$RESULT/$value"
 }
 
@@ -97,7 +84,6 @@ fun DiceApp(navController: NavHostController = rememberNavController()) {
                 route = Routes.RESULT_PATTERN,
                 arguments = listOf(navArgument(Routes.ARG_VALUE) { type = NavType.IntType })
             ) { backStackEntry ->
-                // coerceIn protects against any invalid value
                 val value = (backStackEntry.arguments?.getInt(Routes.ARG_VALUE) ?: 1).coerceIn(1, 6)
 
                 DieResultRouter(
@@ -110,11 +96,7 @@ fun DiceApp(navController: NavHostController = rememberNavController()) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Shared helpers
-// ---------------------------------------------------------------------------
 
-/** Single place that maps a number 1..6 to a drawable. Rename here if your files are named differently. */
 private fun diceDrawable(value: Int): Int = when (value) {
     1 -> R.drawable.dice_1
     2 -> R.drawable.dice_2
@@ -133,7 +115,6 @@ private fun DiceImage(value: Int, modifier: Modifier = Modifier) {
     )
 }
 
-/** Centered, scrollable column used by every screen (prevents overflow on small screens / landscape). */
 @Composable
 private fun ScreenContainer(content: @Composable ColumnScope.() -> Unit) {
     Column(
@@ -147,7 +128,6 @@ private fun ScreenContainer(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-/** Common frame for the 6 result screens: title + content + Back button. */
 @Composable
 private fun ResultShell(
     title: String,
@@ -171,9 +151,6 @@ private fun ResultShell(
     }
 }
 
-// ---------------------------------------------------------------------------
-// Main screen : roll as many times as you want, transition only with "Go to Result"
-// ---------------------------------------------------------------------------
 @Composable
 fun MainDiceScreen(onGoToResult: (Int) -> Unit) {
     // rememberSaveable keeps the roll after screen rotation
@@ -202,10 +179,6 @@ fun MainDiceScreen(onGoToResult: (Int) -> Unit) {
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Router : chooses which result screen to display
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResultRouter(
     value: Int,
@@ -222,9 +195,6 @@ fun DieResultRouter(
     }
 }
 
-// ---------------------------------------------------------------------------
-// Result 1 : Favorite Travel Badge + Refresh (random mock temperature)
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult1(onBack: () -> Unit) {
     var temperature by rememberSaveable { mutableStateOf(Random.nextInt(5, 36)) }
@@ -255,10 +225,6 @@ fun DieResult1(onBack: () -> Unit) {
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Result 2 : button that increments the die by two (wraps around 1..6)
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult2(value: Int, onBack: () -> Unit) {
     var current by rememberSaveable { mutableStateOf(value) }
@@ -267,7 +233,6 @@ fun DieResult2(value: Int, onBack: () -> Unit) {
         DiceImage(current)
         Text(text = "Current Value: $current", fontWeight = FontWeight.Bold)
         Button(
-            // 5 -> 1, 6 -> 2 : keeps the value inside 1..6 so a drawable always exists
             onClick = { current = ((current - 1 + 2) % 6) + 1 },
             modifier = Modifier.fillMaxWidth(0.7f)
         ) {
@@ -276,9 +241,6 @@ fun DieResult2(value: Int, onBack: () -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Result 3 : TextField that updates the die
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult3(value: Int, onBack: () -> Unit) {
     var current by rememberSaveable { mutableStateOf(value) }
@@ -318,9 +280,6 @@ fun DieResult3(value: Int, onBack: () -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Result 4 : six buttons, one to go to each screen
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult4(onBack: () -> Unit, onNavigate: (Int) -> Unit) {
     ResultShell(title = "Die Result: 4", onBack = onBack) {
@@ -336,9 +295,6 @@ fun DieResult4(onBack: () -> Unit, onNavigate: (Int) -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Result 5 : die result + back button
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult5(value: Int, onBack: () -> Unit) {
     ResultShell(title = "Die Result: 5", onBack = onBack) {
@@ -347,9 +303,6 @@ fun DieResult5(value: Int, onBack: () -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Result 6 : dice game (roll a 2nd die, win if new >= current)
-// ---------------------------------------------------------------------------
 @Composable
 fun DieResult6(value: Int, onBack: () -> Unit, onNavigate: (Int) -> Unit) {
     // null = second die not rolled yet
